@@ -16,6 +16,7 @@ def message_loop(handler):
                     handler(message.data)
                 except Exception as e:
                     print e
+                    del ack[ack_id]
 
 def send_AC_command(command):
 
