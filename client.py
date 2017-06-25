@@ -10,13 +10,13 @@ def message_loop(handler):
     subscription = topic.subscription('Test')
 
     while True:
-        with pubsub.subscription.AutoAck(subscription) as ack:
-            for ack_id, message in ack.iteritems():
-                try:
-                    handler(message.data)
-                except Exception as e:
-                    print e
-                    del ack[ack_id]
+        for ack_id, message in subscription.pull():
+            try:
+                handler(message.data)
+            except Exception as e:
+                print e
+            else:
+                subscription.acknowledge(ack_id)
 
 def send_AC_command(command):
 
