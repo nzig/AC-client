@@ -3,13 +3,13 @@
 from lib.google.cloud import pubsub
 import subprocess
 
-def message_loop(handler):
+def message_loop(handler, abort):
 
     client = pubsub.Client.from_service_account_json('account.json',  project='kodicloud-169614')
     topic = client.topic('AirCon')
     subscription = topic.subscription('Test')
 
-    while True:
+    while not abort():
         for ack_id, message in subscription.pull():
             try:
                 handler(message.data)
@@ -33,4 +33,6 @@ def send_AC_command(command):
 
 
 if __name__ == '__main__':
-    message_loop(send_AC_command)
+    def never():
+        return False
+    message_loop(send_AC_command, never)
