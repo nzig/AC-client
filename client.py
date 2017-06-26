@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from google.cloud import pubsub
+from lib.google.cloud import pubsub
 import subprocess
 
 def message_loop(handler):
