@@ -15,7 +15,7 @@ def message_loop(handler):
                 handler(message.data)
             except Exception as e:
                 print e
-            else:
+            finally:
                 subscription.acknowledge([ack_id])
 
 def send_AC_command(command):
