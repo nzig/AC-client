@@ -19,7 +19,8 @@ import (
 func main() {
 	log.Println("Starting...")
 	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, "kodicloud-169614", option.WithServiceAccountFile("account.json"))
+	client, err := pubsub.NewClient(ctx, "kodicloud-169614",
+		option.WithServiceAccountFile("account.json"))
 	if err != nil {
 		log.Println("Failed new client")
 		return
@@ -28,21 +29,22 @@ func main() {
 	sub := client.Subscription("Test")
 
 	lastSeen := time.Now()
-	cctx, _ := context.WithCancel(ctx)
 	daemon.SdNotify(false, "READY=1")
 	log.Println("Initialized")
 	go feedWatchdog()
 
-	err = sub.Receive(cctx, func(ctx context.Context, msg *pubsub.Message) {
+	err = sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 		mu.Lock()
 		defer mu.Unlock()
 		msgTime := msg.PublishTime
 		if msgTime.After(lastSeen) {
-			log.Printf("Got message: %q at %q\n", string(msg.Data), msg.PublishTime)
+			log.Printf("Got message: %q at %q\n",
+				string(msg.Data), msg.PublishTime)
 			lastSeen = msgTime
 			handleCommand(string(msg.Data))
 		} else {
-			log.Printf("Ignored old message: %q at %q\n", string(msg.Data), msg.PublishTime)
+			log.Printf("Ignored old message: %q at %q\n",
+				string(msg.Data), msg.PublishTime)
 		}
 		msg.Ack()
 	})
@@ -70,7 +72,8 @@ func handleCommand(command string) {
 			return
 		}
 	}
-	cmd := exec.Command("irsend", "-d", "/run/lirc/lircd-lirc0", "SEND_ONCE", "ac", command)
+	cmd := exec.Command("irsend", "-d", "/run/lirc/lircd-lirc0",
+		"SEND_ONCE", "ac", command)
 	err := cmd.Run()
 	if err != nil {
 		log.Printf("failed launching irsend: %q", err)
