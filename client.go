@@ -44,6 +44,7 @@ func main() {
 	go feedWatchdog()
 
 	err = sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
+		msg.Ack()
 		mu.Lock()
 		defer mu.Unlock()
 		msgTime := msg.PublishTime
@@ -57,7 +58,6 @@ func main() {
 			log.Printf("Ignored old message from %s: %q at %q\n",
 				user, string(msg.Data), msg.PublishTime)
 		}
-		msg.Ack()
 	})
 	if err != nil {
 		log.Println("Receive error", err)
