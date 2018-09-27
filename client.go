@@ -83,7 +83,7 @@ func handleCommand(command string) {
 			return
 		}
 	}
-	cmd := exec.Command("irsend", "-d", "/run/lirc/lircd-lirc0",
+	cmd := exec.Command("irsend", "-d", "/run/lirc/lircd.socket",
 		"SEND_ONCE", "ac", command)
 	err := cmd.Run()
 	if err != nil {
