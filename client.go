@@ -28,6 +28,16 @@ func main() {
 	var mu sync.Mutex
 	sub := client.Subscription("Test")
 
+	ok, err := sub.Exists(ctx)
+	if err != nil {
+		log.Println("Error checking subscription")
+		return
+	}
+	if !ok {
+		log.Println("Subscription doesn't exist")
+		return
+	}
+
 	lastSeen := time.Now()
 	daemon.SdNotify(false, "READY=1")
 	log.Println("Initialized")
@@ -37,14 +47,15 @@ func main() {
 		mu.Lock()
 		defer mu.Unlock()
 		msgTime := msg.PublishTime
+		user := msg.Attributes["user"]
 		if msgTime.After(lastSeen) {
-			log.Printf("Got message: %q at %q\n",
-				string(msg.Data), msg.PublishTime)
+			log.Printf("Got message from %s: %q at %q\n",
+				user, string(msg.Data), msg.PublishTime)
 			lastSeen = msgTime
 			handleCommand(string(msg.Data))
 		} else {
-			log.Printf("Ignored old message: %q at %q\n",
-				string(msg.Data), msg.PublishTime)
+			log.Printf("Ignored old message from %s: %q at %q\n",
+				user, string(msg.Data), msg.PublishTime)
 		}
 		msg.Ack()
 	})
