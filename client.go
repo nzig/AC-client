@@ -90,4 +90,5 @@ func handleCommand(command string) {
 		log.Printf("failed launching irsend: %q", err)
 		return
 	}
+	log.Printf("Sent command %q\n", command)
 }
